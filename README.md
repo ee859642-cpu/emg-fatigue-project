@@ -3,8 +3,8 @@ Integrative project for EMG-based muscle fatigue classification using Machine Le
 # EMG-Based Detection and Classification of Quadriceps Muscular Fatigue
 
 **Integrative Project - Biomechanics of Gait (Yachay Tech)**
-**Group:** [GRUPO 5]
-**Members:** [CHELSY], [MAYE], [ERICK]
+**Group:** [GROUP 3]
+**Members:** [CHELSY PRISCILA QUEVEDO DE PRADA], [MAYERLIN ALEJANDRA SOLORZANO ZAMBRANO], [ERICK ALEXANDER YAMBERLA DIAZ]
 **Dataset:** 15 subjects, Rectus femoris, dynamic knee extension (70% 1RM).
 
 ## Project Overview
