@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import argparse
+import matplotlib.pyplot as plt
 from preprocessing import filtrar_senal, segmentar_ventanas
 from features import extraer_todas_las_features
 
@@ -49,6 +50,39 @@ def predecir_nuevo_archivo(filepath, modelo_path='models/modelo_emg_fatiga.pkl')
     
     clasificacion = "FATIGADO" if porcentaje_fatiga > 50 else "NO FATIGADO"
     print(f"Clasificación final: {clasificacion}")
+
+    # --- 6. GENERAR Y GUARDAR LA GRÁFICA ---
+    # Calcular RMS y MDF para graficar (calculados directamente de las ventanas V)
+    rms_vals = np.sqrt((V**2).mean(axis=1))
+    
+    w = V * np.hanning(V.shape[1])
+    P = np.abs(np.fft.rfft(w, n=2048, axis=1))**2
+    f = np.fft.rfftfreq(2048, 1/1000)
+    banda = (f >= 20) & (f <= 450)
+    P, f = P[:, banda], f[banda]
+    acum = np.cumsum(P, axis=1)
+    mdf_vals = f[(acum >= acum[:, -1:] / 2).argmax(axis=1)]
+
+    tiempo = np.arange(len(V)) * 0.25
+    tercio = len(V) // 3
+
+    fig, ax = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
+    ax[0].plot(tiempo, rms_vals, color='blue')
+    ax[0].set_ylabel('RMS (Amplitud)')
+    ax[0].set_title('Evolución de Fatiga en la Señal Evaluada')
+    ax[0].axvline(tiempo[tercio], color='gray', linestyle='--')
+    ax[0].axvline(tiempo[-tercio], color='gray', linestyle='--')
+
+    ax[1].plot(tiempo, mdf_vals, color='red')
+    ax[1].set_ylabel('MDF (Hz)')
+    ax[1].set_xlabel('Tiempo (segundos)')
+    ax[1].axvline(tiempo[tercio], color='gray', linestyle='--')
+    ax[1].axvline(tiempo[-tercio], color='gray', linestyle='--')
+
+    plt.tight_layout()
+    plt.savefig('grafica_prediccion.png') # Guarda la imagen en la carpeta
+    plt.show() # Muestra la ventana
+    print("Gráfica guardada exitosamente como 'grafica_prediccion.png' en la misma carpeta.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Predecir fatiga en una señal EMG nueva.")
